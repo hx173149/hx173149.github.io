@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <title>PLSA:简明教程和示例代码 | An unique Monkey</title>
+  <meta name="description" content="Be what you wanted to be" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+
+  <meta name="generator" content="An unique Monkey">
+
+  
+  
+  
+
+  
+</head>
+
+
+<body class="post-template">
+
+  <header class="site-head"  style="background-image: url(//blog.ghost.org/content/images/2013/Nov/cover.png)" >
+    <div class="vertical">
+        <div class="site-head-content inner">
+             <a class="blog-logo" href="/"><img src="//blog.ghost.org/content/images/2013/Nov/bloglogo_1-1.png" alt="Blog Logo"/></a> 
+            <h1 class="blog-title">An unique Monkey</h1>
+            <h2 class="blog-description">Be what you wanted to be</h2>
+        </div>
+    </div>
+</header>
+  
+
+<main class="content" role="main">
+  <article class="post">
+    <span class="post-meta">
+      <time datetime="2015-06-19T06:31:27.000Z" itemprop="datePublished">
+          2015-06-19
+      </time>
+    
+    
+    | 
+    <a href='/tags/C/'>C++</a>,
+    
+    <a href='/tags/机器学习/'>机器学习</a>
+    
+    
+</span>
+    <h1 class="post-title">PLSA:简明教程和示例代码</h1>
+    <section class="post-content">
+      <h2 id="主题模型">主题模型</h2><p>PLSA是一种经典的主题模型，关于文本的主题模型的定义我们引用wiki上的定义：直观来讲，如果一篇文章有一个中心思想，那么一些特定词语会更频繁的出现。比方说，如果一篇文章是在讲狗的，那“狗”和“骨头”等词出现的频率会高些。如果一篇文章是在讲猫的，那“猫”和“鱼”等词出现的频率会高些。而有些词例如“这个”、“和”大概在两篇文章中出现的频率会大致相等。但真实的情况是，一篇文章通常包含多种主题，而且每个主题所占比例各不相同。因此，如果一篇文章10%和猫有关，90%和狗有关，那么和狗相关的关键字出现的次数大概会是和猫相关的关键字出现次数的9倍。一个主题模型试图用数学框架来体现文档的这种特点。主题模型自动分析每个文档，统计文档内的词语，根据统计的信息来断定当前文档含有哪些主题，以及每个主题所占的比例各为多少。<br>举例如下:假设一篇文章可以由:arts budgets childern education 4个topic组成，那么下面这篇文章在各个topic上的分布可以用如下具体形式表现出来：<br><img src="http://img.blog.csdn.net/20141117154035285" alt="topic-model-topic-pic"><br>并且每个topic下哪些词出现的概率比较大<br><img src="http://img.blog.csdn.net/20141117153816148" alt="topic-model-topic-pic"><br><a href="https://zh.wikipedia.org/wiki/%E4%B8%BB%E9%A2%98%E6%A8%A1%E5%9E%8B" target="_blank" rel="external">主题模型:wiki链接</a><br>而主题模型在文本挖掘和语义分析中有着很重大的作用，如果我们能够通过主题模型准确地获取到每篇文章的主题分布那么我们就能很轻松的对文本进行聚类和分类的分析。主题模型就是尽可能真实、准确地帮我们寻找出每篇文章在每个topic上的概率分布，以及顺手可以拿到每个topic在每个word上的概率分布。</p>
+<h2 id="PLSA">PLSA</h2><p>Probabilistic latent semantic analysis直译就是概率潜语义分析，PLSA通过统计的方法对文档进行建模，建的模型也很简单，用如下的图就可以表示：<br><img src="http://img-storage.qiniudn.com/15-6-22/32512083.jpg" alt="topic-model-model-pic"></p>
+<h3 id="建模过程">建模过程</h3><ol>
+<li>doc i以一个多项分布的概率生成topic z: $p(t_z|d_i)$</li>
+<li>topic z以一个多项分布的概率生成word j: $p(w_j|t_z)$</li>
+</ol>
+<p>最终我们希望通过N篇文档的语料信息求得每一个$p(t_z|d_i)$和$p(w_j|t_z)$的多项分布，转化成矩阵的形式也就是求上图的$P(T|D)$和$P(W|T)$。得到了$P(T|D)$和$P(W|T)$的分布以后我们至少可以做如下两件事情：</p>
+<ul>
+<li>对于训练语料的N篇文档，可以通过$p(T|d_{i})$的分布进行聚类（最简单的就是用kmeans在欧式空间里将文档进行聚类）</li>
+<li>新进来一篇文档，可以通过inference的方法推断出该文档在训练出来的topic上的分布，从而对新文档进行聚类或者分类</li>
+</ul>
+<h3 id="训练方法">训练方法</h3><p>接下来我们就要求解$P(T|D)$和$P(W|T)$这2个矩阵了，从统计的角度来说最直观的解法就是求$P(T|D)*P(W|T)$的概率似然函数最大。但是在实际求解的过程中会发现中间的topic是一个隐含变量对于我们的似然函数来说求导是很不方便的，经典的求解隐含变量的方法当然是EM算法，在原论文中的求解方法也是通过EM算法进行的求解：<a href="http://cs.brown.edu/~th/papers/Hofmann-UAI99.pdf" target="_blank" rel="external">PLSA论文</a><br>在这里我们就不列出那一大堆的推倒公式了，有兴趣的同学可以参考上面的论文，如果想看中文的推导过程也可以参考以下2篇博文：<br><a href="http://www.cnblogs.com/jerrylead/archive/2011/04/06/2006936.html" target="_blank" rel="external">EM算法推导</a><br><a href="http://www.52nlp.cn/%E6%A6%82%E7%8E%87%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%85%B6%E5%8F%98%E5%BD%A2%E7%B3%BB%E5%88%971-plsa%E5%8F%8Aem%E7%AE%97%E6%B3%95" target="_blank" rel="external">EM应用在PLSA求解</a></p>
+<h3 id="PLSA代码">PLSA代码</h3><p>虽然算法看上去有点复杂，但是实现完了之后发现其实还是挺清晰明朗的，2分代码都是用C++编写的，一个是单线程版本，一个是多线程版本（用到了boost中的多线程，所以应该需要安装boost库才能编译并行的版本）。在github上的链接如下：<br>README里面都有编译教程、训练语料数据（IMDB上的2W5条影评数据）、使用教程<br><a href="https://github.com/hx173149/Plsa.git" target="_blank" rel="external">单线程版本</a><br><a href="https://github.com/hx173149/Plsa_parella.git" target="_blank" rel="external">多线程版本</a></p>
+<h3 id="实现效果">实现效果</h3><p>PLSA训练的每个topic中前20个概率比较大的词：<br><img src="http://img-storage.qiniudn.com/15-6-23/73822351.jpg" alt="topic101"><br><img src="http://img-storage.qiniudn.com/15-6-23/30052436.jpg" alt="topic7"><br><img src="http://img-storage.qiniudn.com/15-6-23/38022857.jpg" alt="topic81"><br>从测试结果分析topic 101中就出现了killer murder comic villian suspect murdered 等词汇，那就表明这个topic可能跟犯罪，凶杀相关的主题比较相近<br>而topic 7中出现的sex female naked lover等词语可能表明这个主题和性，情爱的主题比较相近。<br>但是有些topic的词语在主观上却很难寻找出一些实际的物理意义，感觉不知所云，比如topic81中出现这些一大堆but always when等等词语很难抽象出其物理意义是什么。这是因为PLSA本身就是一种无监督算法，它只能帮你尽可能的去模拟每个文章的主题分布，但是这个主题分布和是不是你想要的某种实际物理含义的主题分布基本上是没有关系的。</p>
+<h3 id="一些技巧">一些技巧</h3><ol>
+<li>在训练完成以后已经可以得到每一篇训练文档在每个主题上的分布情况，新进来的文档我们可以通过这篇文档在word上的分布和$P(W|T)$这个矩阵推断出它在各个topic上的分布。具体方法就是用这一篇doc来跑EM算法的迭代，但是每次迭代的时候只更新$p(T|d)$和$p(T)$，别的参数都用训练时候得出的值固定不变，一般这样迭代20次以后就能得出新doc在个topic上的分布。</li>
+<li>在EM算法迭代中的E步时，我们需要求的就是$P(T|W,D)$这样一个三维矩阵，假设我们有25000篇doc，10000个word，200个topic，用浮点数表示每个元素那么这个矩阵需要的内存最起码为25000<em>10000</em>200*4=50G的空间。这对于一般人的电脑是无法负担的吧。所以我们在实现的时候运用了数据的稀疏性，并没有存一个全量的$P(T|W,D)$，而只是存了在doc i中出现了word j的$p(T|w_j,d_i)$，这样所需要的内存就大大减小了。然后在迭代的计算过程中也会有类似的trick让我们可以大大减少一些无用的计算量，加快计算速度。<br>具体代码在上面2个版本中都有实现。</li>
+</ol>
+
+    </section>
+    <footer class="post-footer">
+      <section class="author">
+    <h4>HouXin</h4>
+    <p>A designer, developer and entrepreneur. Spends his time travelling the world with a bag of kites. Likes journalism and publishing platforms.</p>
+</section>
+      <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?url=http://yoursite.com/2015/06/19/PLSA_blog/"
+       onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2015/06/19/PLSA_blog/"
+       onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http://yoursite.com/2015/06/19/PLSA_blog/"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+    </footer>
+  </article>
+  <nav class="pagination" role="pagination">
+    
+    <span class="page-number">•</span>
+    
+</nav>
+  <div id="comment" class="comments-area">
+    <h1 class="title"><a href="#disqus_comments" name="disqus_comments">Comments</a></h1>
+
+    <% if(config.disqus_shortname) { %>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+    <% } %>
+</div>
+</main>
+
+
+  
+<footer class="site-footer">
+  
+  <div class="inner">
+     <section class="copyright">All content copyright <a href="/">An unique Monkey</a> &copy; 2014 &bull; All rights reserved.</section>
+     <section class="poweredby">Proudly published with <a class="icon-ghost" href="http://zespia.tw/hexo/">Hexo</a></section>
+  </div>
+</footer>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+</body>
+</html>

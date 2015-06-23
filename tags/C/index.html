@@ -48,22 +48,21 @@
     | 
     <a href='/tags/C/'>C++</a>,
     
-    <a href='/tags/machine-learning/'>machine learning</a>
+    <a href='/tags/机器学习/'>机器学习</a>
     
     
 </span>
-      <h2 class="post-title"><a href="/2015/06/19/test/">PLSA simple tutorial and example code</a></h2>
+      <h2 class="post-title"><a href="/2015/06/19/PLSA_blog/">PLSA:简明教程和示例代码</a></h2>
     </header>
     <section class="post-excerpt">
       <p>
       
-        my first test paper……
-
+        主题模型PLSA是一种经典的主题模型，关于文本的主题模型的定义我们引用wiki上的定义：直观来讲，如果一篇文章有一个中心思想，那么一些特定词语会更频繁的出现。比方说，如果一篇文章是在讲狗的，那“狗”和“骨头”等词出现的频率会高些。如果一篇文章是在讲猫的，那“猫”和“鱼”等词出现的频率会高些。而有些词例如“这个”、“和”大概在两篇文章中出现的频率会大致相等。但真实的情况是，一篇文章通常包含多种主题，而且每个主题所占比例各不相同。因此，如果
       
       </p>
       
       <p>
-          <a href="/2015/06/19/test/" class="excerpt-link">Read More...</a>
+          <a href="/2015/06/19/PLSA_blog/" class="excerpt-link">Read More...</a>
       </p>
       
     </section>
@@ -93,6 +92,37 @@
 
 
 
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 
 
 
