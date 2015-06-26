@@ -69,7 +69,7 @@
 <h3 id="实现效果">实现效果</h3><p>PLSA训练的每个topic中前20个概率比较大的词：<br><img src="http://img-storage.qiniudn.com/15-6-23/73822351.jpg" alt="topic101"><br><img src="http://img-storage.qiniudn.com/15-6-23/30052436.jpg" alt="topic7"><br><img src="http://img-storage.qiniudn.com/15-6-23/38022857.jpg" alt="topic81"><br>从测试结果分析topic 101中就出现了killer murder comic villian suspect murdered 等词汇，那就表明这个topic可能跟犯罪，凶杀相关的主题比较相近<br>而topic 7中出现的sex female naked lover等词语可能表明这个主题和性，情爱的主题比较相近。<br>但是有些topic的词语在主观上却很难寻找出一些实际的物理意义，感觉不知所云，比如topic81中出现这些一大堆but always when等等词语很难抽象出其物理意义是什么。这是因为PLSA本身就是一种无监督算法，它只能帮你尽可能的去模拟每个文章的主题分布，但是这个主题分布和是不是你想要的某种实际物理含义的主题分布基本上是没有关系的。</p>
 <h3 id="一些技巧">一些技巧</h3><ol>
 <li>在训练完成以后已经可以得到每一篇训练文档在每个主题上的分布情况，新进来的文档我们可以通过这篇文档在word上的分布和$P(W|T)$这个矩阵推断出它在各个topic上的分布。具体方法就是用这一篇doc来跑EM算法的迭代，但是每次迭代的时候只更新$p(T|d)$和$p(T)$，别的参数都用训练时候得出的值固定不变，一般这样迭代20次以后就能得出新doc在个topic上的分布。</li>
-<li>在EM算法迭代中的E步时，我们需要求的就是$P(T|W,D)$这样一个三维矩阵，假设我们有25000篇doc，10000个word，200个topic，用浮点数表示每个元素那么这个矩阵需要的内存最起码为25000<em>10000</em>200*4=50G的空间。这对于一般人的电脑是无法负担的吧。所以我们在实现的时候运用了数据的稀疏性，并没有存一个全量的$P(T|W,D)$，而只是存了在doc i中出现了word j的$p(T|w_j,d_i)$，这样所需要的内存就大大减小了。然后在迭代的计算过程中也会有类似的trick让我们可以大大减少一些无用的计算量，加快计算速度。<br>具体代码在上面2个版本中都有实现。</li>
+<li>在EM算法迭代中的E步时，我们需要求的就是$P(T|W,D)$这样一个三维矩阵，假设我们有25000篇doc，10000个word，200个topic，用浮点数表示每个元素那么这个矩阵需要的内存最起码为25000 * 10000 * 200 * 4=50G的空间。这对于一般人的电脑是无法负担的吧。所以我们在实现的时候运用了数据的稀疏性，并没有存一个全量的$P(T|W,D)$，而只是存了在doc i中出现了word j的$p(T|w_j,d_i)$，这样所需要的内存就大大减小了。然后在迭代的计算过程中也会有类似的trick让我们可以大大减少一些无用的计算量，加快计算速度。<br>具体代码在上面2个版本中都有实现。</li>
 </ol>
 
     </section>
@@ -97,18 +97,35 @@
   </article>
   <nav class="pagination" role="pagination">
     
+    <a class="newer-posts" href="/2015/06/26/as_opencv/">
+        ← Android Studio + Opencv 配置教程
+    </a>
+    
     <span class="page-number">•</span>
     
 </nav>
-  <div id="comment" class="comments-area">
-    <h1 class="title"><a href="#disqus_comments" name="disqus_comments">Comments</a></h1>
+  
+<section id="comment">
+  <!-- ��˵���ۿ� start -->
+	<div class="ds-thread" data-thread-key="1" data-title="PLSA:�����̳̺�ʾ������" data-url="localhost:4000/2015/06/19/PLSA_blog/"></div>
+  <!-- ��˵���ۿ� end -->
+  <!-- ��˵����JS���� start (һ����ҳֻ������һ��) -->
+  <script type="text/javascript">
+  var duoshuoQuery = {short_name:"hx173149"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+  <!-- ��˵����JS���� end -->
+</section>
 
-    <% if(config.disqus_shortname) { %>
-    <div id="disqus_thread">
-        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    </div>
-    <% } %>
-</div>
+
+
 </main>
 
 

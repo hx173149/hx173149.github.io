@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <title>Android Studio + Opencv 配置教程 | An unique Monkey</title>
+  <meta name="description" content="Be what you wanted to be" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+
+  <meta name="generator" content="An unique Monkey">
+
+  
+  
+  
+
+  
+</head>
+
+
+<body class="post-template">
+
+  <header class="site-head"  style="background-image: url(//blog.ghost.org/content/images/2013/Nov/cover.png)" >
+    <div class="vertical">
+        <div class="site-head-content inner">
+             <a class="blog-logo" href="/"><img src="//blog.ghost.org/content/images/2013/Nov/bloglogo_1-1.png" alt="Blog Logo"/></a> 
+            <h1 class="blog-title">An unique Monkey</h1>
+            <h2 class="blog-description">Be what you wanted to be</h2>
+        </div>
+    </div>
+</header>
+  
+
+<main class="content" role="main">
+  <article class="post">
+    <span class="post-meta">
+      <time datetime="2015-06-26T13:00:27.000Z" itemprop="datePublished">
+          2015-06-26
+      </time>
+    
+    
+    | 
+    <a href='/tags/Android/'>Android</a>,
+    
+    <a href='/tags/JAVA/'>JAVA</a>
+    
+    
+</span>
+    <h1 class="post-title">Android Studio + Opencv 配置教程</h1>
+    <section class="post-content">
+      <h2 id="Android_Studio_+_Opencv">Android Studio + Opencv</h2><p>晚上能找到很多Eclipse + Opencv的教程，可是对于Android Studio + Opencv的资料却比较少，而且写的都比较简单，为了让新人少一点掉到坑里，特意整理一下AS+opencv的方法哈</p>
+<h2 id="配置教程">配置教程</h2><ol>
+<li>下载Opencv的android版本SDK:<a href="http://opencv.org/downloads.html" target="_blank" rel="external">opencv官网</a></li>
+<li>新建一个工程起名为TestOpenCV<br><img src="http://img-storage.qiniudn.com/15-6-26/52113930.jpg" alt="step2"></li>
+<li>导入OpenCV的工程：点击File-&gt;New-&gt;Import Module,然后把要导入的opencv路径设为下载的OpenCV-android-sdk/sdk/java的路径，点击确定。<br><img src="http://img-storage.qiniudn.com/15-6-26/9305222.jpg" alt="step3"></li>
+</ol>
+<p><img src="http://img-storage.qiniudn.com/15-6-26/2951614.jpg" alt="step3-2"></p>
+<ol>
+<li><p>在你左边的Project试图页面，可以看到新添加了一个OpenCVlibrary2411的文件夹（具体数字会根据你的opencv sdk版本而定）。<br><img src="http://img-storage.qiniudn.com/15-6-26/93837283.jpg" alt="step4"><br>修改OpenCVlibrary2411目录下的那个build.gradle文件，主要改这其中4项：</p>
+<pre><code><span class="keyword">android </span>{
+    compileSdkVersion <span class="number">22</span>
+    <span class="keyword">buildToolsVersion </span><span class="string">"22.0.1"</span>
+
+<span class="label">defaultConfig</span> {
+    minSdkVersion <span class="number">15</span>
+    targetSdkVersion <span class="number">22</span>
+    }
+<span class="keyword">buildTypes </span>{
+    ......
+    }
+｝
+</code></pre><p>其中的compileSdkVersion,buildToolsVersion,minSdkVersion,targetSdkVersion四项可以参考<strong>app/build.gradle</strong>设为一模一样的</p>
+</li>
+<li>在左边的project视图里面右键点击Open Modeule Setting，然后点击Dependencies标签页，点击右上角的+号图标，选择Module dependency，选择openCVLibrary2411<br><img src="http://img-storage.qiniudn.com/15-6-26/49147190.jpg" alt="step5"></li>
+<li>将下载的opencv SDK库里面的OpenCV-android-sdk/sdk/native下面的libs文件夹拷贝到TestOpenCV/app/src/main下面，并将这个libs文件夹改名为jniLibs<br>到这里所有OpenCV的配置就完成了！接下来是用OpenCV的示例代码。</li>
+</ol>
+<h2 id="android_studio_+_opencv示例代码">android studio + opencv示例代码</h2><p>还是接上面的工程</p>
+<ol>
+<li><p>修改app/src/res/layout/activity_main.xml的布局文件</p>
+<pre><code>&lt;ImageView
+    android:<span class="variable">layout_width=</span><span class="string">"wrap_content"</span>
+    android:<span class="variable">layout_height=</span><span class="string">"wrap_content"</span>
+    android:<span class="variable">id=</span><span class="string">"@+id/imageView"</span>
+    android:<span class="variable">layout_centerVertical=</span><span class="string">"true"</span>
+    android:<span class="variable">layout_centerHorizontal=</span><span class="string">"true"</span> /&gt;
+
+&lt;Button
+    android:<span class="variable">layout_width=</span><span class="string">"wrap_content"</span>
+    android:<span class="variable">layout_height=</span><span class="string">"wrap_content"</span>
+    android:<span class="variable">text=</span><span class="string">"test"</span>
+    android:<span class="variable">id=</span><span class="string">"@+id/button"</span>
+    android:<span class="variable">layout_alignParentBottom=</span><span class="string">"true"</span>
+    android:<span class="variable">layout_centerHorizontal=</span><span class="string">"true"</span> /&gt;
+</code></pre><p>就是添加一个ImageView和一个Button的控件(注意他们的id号,等下要与MainActivityt.java文件里面的id号对应）</p>
+</li>
+<li><p>在TestOpenCV\app\src\main\res\drawable路径下面放上一张lena.png的图片<br><img src="http://img-storage.qiniudn.com/15-6-26/22487674.jpg" alt="step7"></p>
+</li>
+<li><p>修改MainActivity的代码：</p>
+<pre><code><span class="keyword">package</span> com.brucehou.testopencv;
+
+<span class="keyword">import</span> android.support.v7.app.ActionBarActivity;
+<span class="keyword">import</span> android.os.Bundle;
+<span class="keyword">import</span> android.view.Menu;
+<span class="keyword">import</span> android.view.MenuItem;
+<span class="keyword">import</span> android.os.Bundle;
+<span class="keyword">import</span> android.app.Activity;
+<span class="keyword">import</span> android.graphics.Bitmap;
+<span class="keyword">import</span> android.graphics.BitmapFactory;
+<span class="keyword">import</span> android.graphics.Bitmap.Config;
+<span class="keyword">import</span> android.view.View;
+<span class="keyword">import</span> android.view.View.OnClickListener;
+<span class="keyword">import</span> android.widget.Button;
+<span class="keyword">import</span> android.widget.ImageView;
+
+<span class="keyword">import</span> com.brucehou.testopencv.R;
+
+<span class="keyword">import</span> org.opencv.android.Utils;
+<span class="keyword">import</span> org.opencv.core.Mat;
+<span class="keyword">import</span> org.opencv.imgproc.Imgproc;
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> <span class="keyword">implements</span> <span class="title">OnClickListener</span></span>{
+
+    <span class="keyword">private</span> Button btnProc;
+    <span class="keyword">private</span> ImageView imageView;
+    <span class="keyword">private</span> Bitmap bmp;
+
+    <span class="keyword">static</span>{ System.loadLibrary(<span class="string">"opencv_java"</span>); }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="function"><span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>{
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        imageView = (ImageView) findViewById(R.id.imageView);
+        bmp = BitmapFactory.decodeResource(getResources(), R.drawable.lena);
+        imageView.setImageBitmap(bmp);
+        btnProc = (Button) findViewById(R.id.button);
+        btnProc.setOnClickListener(<span class="keyword">this</span>);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">onCreateOptionsMenu</span><span class="params">(Menu menu)</span> </span>{
+    <span class="comment">// Inflate the menu; this adds items to the action bar if it is present.</span>
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">onOptionsItemSelected</span><span class="params">(MenuItem item)</span> </span>{
+
+        <span class="keyword">int</span> id = item.getItemId();
+
+    <span class="comment">//noinspection SimplifiableIfStatement</span>
+        <span class="keyword">if</span> (id == R.id.action_settings) {
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+        }
+
+        <span class="function"><span class="keyword">return</span> <span class="keyword">super</span>.<span class="title">onOptionsItemSelected</span><span class="params">(item)</span></span>;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>{
+        <span class="comment">//test opencv</span>
+        Mat rgbMat = <span class="keyword">new</span> Mat();
+        Mat grayMat = <span class="keyword">new</span> Mat();
+        Utils.bitmapToMat(bmp, rgbMat);
+        Imgproc.cvtColor(rgbMat, grayMat, Imgproc.COLOR_RGB2GRAY);
+        Bitmap grayBmp = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), Config.RGB_565);
+        Utils.matToBitmap(grayMat, grayBmp);
+        imageView.setImageBitmap(grayBmp);
+
+    }
+</code></pre><p>}<br>编译、run就可以了<br><img src="http://img-storage.qiniudn.com/15-6-26/77283187.jpg" alt="app1"><br><img src="http://img-storage.qiniudn.com/15-6-26/11684671.jpg" alt="app2"></p>
+</li>
+</ol>
+<p><strong>其中有几点要注意的：</strong><br><strong>一定要记得动态载入opencv的so:<br>static{ System.loadLibrary(“opencv_java”); }<br>比较容易坑人的一点是OpenCV sdk中的sample都是静态载入：这就需要你安装Opencv Manager，在android5.0上还会有崩溃的情况。。。</strong></p>
+
+    </section>
+    <footer class="post-footer">
+      <section class="author">
+    <h4>HouXin</h4>
+    <p>A designer, developer and entrepreneur. Spends his time travelling the world with a bag of kites. Likes journalism and publishing platforms.</p>
+</section>
+      <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?url=http://yoursite.com/2015/06/26/as_opencv/"
+       onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2015/06/26/as_opencv/"
+       onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http://yoursite.com/2015/06/26/as_opencv/"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+    </footer>
+  </article>
+  <nav class="pagination" role="pagination">
+    
+    <span class="page-number">•</span>
+    
+    <a class="older-posts" href="/2015/06/19/PLSA_blog/">
+        PLSA:简明教程和示例代码 →
+    </a>
+    
+</nav>
+  
+<section id="comment">
+  <!-- ��˵���ۿ� start -->
+	<div class="ds-thread" data-thread-key="1" data-title="PLSA:�����̳̺�ʾ������" data-url="localhost:4000/2015/06/19/PLSA_blog/"></div>
+  <!-- ��˵���ۿ� end -->
+  <!-- ��˵����JS���� start (һ����ҳֻ������һ��) -->
+  <script type="text/javascript">
+  var duoshuoQuery = {short_name:"hx173149"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+  <!-- ��˵����JS���� end -->
+</section>
+
+
+
+</main>
+
+
+  
+<footer class="site-footer">
+  
+  <div class="inner">
+     <section class="copyright">All content copyright <a href="/">An unique Monkey</a> &copy; 2014 &bull; All rights reserved.</section>
+     <section class="poweredby">Proudly published with <a class="icon-ghost" href="http://zespia.tw/hexo/">Hexo</a></section>
+  </div>
+</footer>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+</body>
+</html>
