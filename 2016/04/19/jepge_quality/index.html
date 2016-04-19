@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-  <title>An unique Monkey</title>
+  <title>读取JPEG文件的压缩质量/质量因子参数 | An unique Monkey</title>
   <meta name="description" content="Be what you wanted to be" />
   <meta name="HandheldFriendly" content="True" />
   <meta name="MobileOptimized" content="320" />
@@ -39,21 +39,23 @@
 <main class="content" role="main">
   <article class="post">
     <span class="post-meta">
-      <time datetime="2016-04-19T13:19:23.034Z" itemprop="datePublished">
+      <time datetime="2016-04-19T06:31:27.000Z" itemprop="datePublished">
           2016-04-19
       </time>
     
+    
+    | 
+    <a href='/tags/C/'>C++</a>
+    
+    
 </span>
-    <h1 class="post-title"></h1>
+    <h1 class="post-title">读取JPEG文件的压缩质量/质量因子参数</h1>
     <section class="post-content">
-      <h1 id="读取JPEG文件的压缩质量/质量因子参数">读取JPEG文件的压缩质量/质量因子参数</h1><p>标签（空格分隔）： C/C++ libjpeg</p>
-<hr>
-<p>JPEG是一种图像压缩算法，而JPEG在做压缩编码的时候往往需要设定一个压缩质量/质量因子的参数(quality)。而在编码完成以后我们有时候希望获取到JPEG压缩文件的这个quality，好在万恶的jpeg编码协议却并没有直接存储这个quality参数,而opencv libjpeg这样的第三方库也没有提供获取JPEG文件质量参数的接口。可是JPEG文件存储了一个量化表的参数(quantize table)，这里我们就是运用读取这个JPEG文件的quantize table然后反推这个JPEG文件的quality。</p>
+      <p>JPEG是一种图像压缩算法，而JPEG在做压缩编码的时候往往需要设定一个压缩质量/质量因子的参数(quality)。而在编码完成以后我们有时候希望获取到JPEG压缩文件的这个quality，好在万恶的jpeg编码协议却并没有直接存储这个quality参数,而opencv libjpeg这样的第三方库也没有提供获取JPEG文件质量参数的接口。可是JPEG文件存储了一个量化表的参数(quantize table)，这里我们就是运用读取这个JPEG文件的quantize table然后反推这个JPEG文件的quality。</p>
 <ol>
 <li>关于JPEG具体的压缩算法请查看<a href="https://zh.wikipedia.org/wiki/JPEG" target="_blank" rel="external">wiki</a></li>
 <li>需要用到第三方库文件:<a href="http://www.ijg.org/files/jpegsrc.v9.tar.gz" target="_blank" rel="external">libjpeg</a>(下载链接)</li>
-<li><p>安装方法：</p>
-<pre><code>tar xvf jpegsrc.v9.tar.gz
+<li>安装方法：<pre><code>tar xvf jpegsrc.v9.tar.gz
 <span class="keyword">cd</span> jpeg-<span class="number">9</span>
 <span class="built_in">mkdir</span> build
 <span class="keyword">cd</span> build
@@ -142,8 +144,7 @@
   <span class="keyword">return</span> <span class="number">0</span>; 
 }
 </code></pre></li>
-<li><p>编译链接的方法也很简单了<br>g++ main.cpp -I/your_path_to/libjpeg-9b/build/include -L/your_path_to/libjpeg-9b/build/lib/ -ljpeg</p>
-</li>
+<li>编译链接的方法也很简单了<br>g++ main.cpp -I/your_path_to/libjpeg-9b/build/include -L/your_path_to/libjpeg-9b/build/lib/ -ljpeg</li>
 </ol>
 
     </section>
