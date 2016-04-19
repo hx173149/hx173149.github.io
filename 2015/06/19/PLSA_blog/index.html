@@ -104,28 +104,15 @@
     <span class="page-number">•</span>
     
 </nav>
-  
-<section id="comment">
-  <!-- ��˵���ۿ� start -->
-	<div class="ds-thread" data-thread-key="1" data-title="PLSA:�����̳̺�ʾ������" data-url="localhost:4000/2015/06/19/PLSA_blog/"></div>
-  <!-- ��˵���ۿ� end -->
-  <!-- ��˵����JS���� start (һ����ҳֻ������һ��) -->
-  <script type="text/javascript">
-  var duoshuoQuery = {short_name:"hx173149"};
-	(function() {
-		var ds = document.createElement('script');
-		ds.type = 'text/javascript';ds.async = true;
-		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-		ds.charset = 'UTF-8';
-		(document.getElementsByTagName('head')[0] 
-		 || document.getElementsByTagName('body')[0]).appendChild(ds);
-	})();
-	</script>
-  <!-- ��˵����JS���� end -->
-</section>
+  <div id="comment" class="comments-area">
+    <h1 class="title"><a href="#disqus_comments" name="disqus_comments">Comments</a></h1>
 
-
-
+    <% if(config.disqus_shortname) { %>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+    <% } %>
+</div>
 </main>
 
 

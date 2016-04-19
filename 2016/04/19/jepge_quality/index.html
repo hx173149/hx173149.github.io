@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <title>An unique Monkey</title>
+  <meta name="description" content="Be what you wanted to be" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+
+  <meta name="generator" content="An unique Monkey">
+
+  
+  
+  
+
+  
+</head>
+
+
+<body class="post-template">
+
+  <header class="site-head"  style="background-image: url(//blog.ghost.org/content/images/2013/Nov/cover.png)" >
+    <div class="vertical">
+        <div class="site-head-content inner">
+             <a class="blog-logo" href="/"><img src="//blog.ghost.org/content/images/2013/Nov/bloglogo_1-1.png" alt="Blog Logo"/></a> 
+            <h1 class="blog-title">An unique Monkey</h1>
+            <h2 class="blog-description">Be what you wanted to be</h2>
+        </div>
+    </div>
+</header>
+  
+
+<main class="content" role="main">
+  <article class="post">
+    <span class="post-meta">
+      <time datetime="2016-04-19T13:19:23.034Z" itemprop="datePublished">
+          2016-04-19
+      </time>
+    
+</span>
+    <h1 class="post-title"></h1>
+    <section class="post-content">
+      <h1 id="读取JPEG文件的压缩质量/质量因子参数">读取JPEG文件的压缩质量/质量因子参数</h1><p>标签（空格分隔）： C/C++ libjpeg</p>
+<hr>
+<p>JPEG是一种图像压缩算法，而JPEG在做压缩编码的时候往往需要设定一个压缩质量/质量因子的参数(quality)。而在编码完成以后我们有时候希望获取到JPEG压缩文件的这个quality，好在万恶的jpeg编码协议却并没有直接存储这个quality参数,而opencv libjpeg这样的第三方库也没有提供获取JPEG文件质量参数的接口。可是JPEG文件存储了一个量化表的参数(quantize table)，这里我们就是运用读取这个JPEG文件的quantize table然后反推这个JPEG文件的quality。</p>
+<ol>
+<li>关于JPEG具体的压缩算法请查看<a href="https://zh.wikipedia.org/wiki/JPEG" target="_blank" rel="external">wiki</a></li>
+<li>需要用到第三方库文件:<a href="http://www.ijg.org/files/jpegsrc.v9.tar.gz" target="_blank" rel="external">libjpeg</a>(下载链接)</li>
+<li><p>安装方法：</p>
+<pre><code>tar xvf jpegsrc.v9.tar.gz
+<span class="keyword">cd</span> jpeg-<span class="number">9</span>
+<span class="built_in">mkdir</span> build
+<span class="keyword">cd</span> build
+../configure
+<span class="keyword">make</span> -<span class="keyword">j</span>
+<span class="keyword">make</span> install
+</code></pre></li>
+<li><p>实现代码</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span>
+<span class="preprocessor">#<span class="keyword">include</span> &lt;math.h&gt;</span>
+
+<span class="preprocessor">#<span class="keyword">include</span> "jpeglib.h"</span>
+<span class="preprocessor">#<span class="keyword">include</span> &lt;setjmp.h&gt;</span>
+
+<span class="comment">//标准明度量化表</span>
+<span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="keyword">std_luminance_quant_t</span>bl[DCTSIZE2] = {
+<span class="number">16</span>,  <span class="number">11</span>,  <span class="number">10</span>,  <span class="number">16</span>,  <span class="number">24</span>,  <span class="number">40</span>,  <span class="number">51</span>,  <span class="number">61</span>,
+<span class="number">12</span>,  <span class="number">12</span>,  <span class="number">14</span>,  <span class="number">19</span>,  <span class="number">26</span>,  <span class="number">58</span>,  <span class="number">60</span>,  <span class="number">55</span>,
+<span class="number">14</span>,  <span class="number">13</span>,  <span class="number">16</span>,  <span class="number">24</span>,  <span class="number">40</span>,  <span class="number">57</span>,  <span class="number">69</span>,  <span class="number">56</span>,
+<span class="number">14</span>,  <span class="number">17</span>,  <span class="number">22</span>,  <span class="number">29</span>,  <span class="number">51</span>,  <span class="number">87</span>,  <span class="number">80</span>,  <span class="number">62</span>,
+<span class="number">18</span>,  <span class="number">22</span>,  <span class="number">37</span>,  <span class="number">56</span>,  <span class="number">68</span>, <span class="number">109</span>, <span class="number">103</span>,  <span class="number">77</span>,
+<span class="number">24</span>,  <span class="number">35</span>,  <span class="number">55</span>,  <span class="number">64</span>,  <span class="number">81</span>, <span class="number">104</span>, <span class="number">113</span>,  <span class="number">92</span>,
+<span class="number">49</span>,  <span class="number">64</span>,  <span class="number">78</span>,  <span class="number">87</span>, <span class="number">103</span>, <span class="number">121</span>, <span class="number">120</span>, <span class="number">101</span>,
+<span class="number">72</span>,  <span class="number">92</span>,  <span class="number">95</span>,  <span class="number">98</span>, <span class="number">112</span>, <span class="number">100</span>, <span class="number">103</span>,  <span class="number">99</span>
+};
+<span class="comment">//读取JPG文件的质量参数</span>
+<span class="function"><span class="keyword">int</span> <span class="title">ReadJpegQuality</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *filename)</span>
+</span>{
+  FILE * infile = fopen(filename, <span class="string">"rb"</span>);
+  fseek(infile,<span class="number">0</span>,SEEK_END);
+  <span class="keyword">size_t</span> sz = ftell(infile);
+  fseek(infile,<span class="number">0</span>,SEEK_SET);
+  <span class="keyword">unsigned</span> <span class="keyword">char</span>* buffer = <span class="keyword">new</span> <span class="keyword">unsigned</span> <span class="keyword">char</span>[sz];
+  fread(buffer,<span class="number">1</span>,sz,infile);
+  fclose(infile);
+  <span class="comment">//如果不是JPG格式的文件返回-1</span>
+  <span class="keyword">if</span>(buffer==NULL || sz &lt;= <span class="number">2</span> || 
+  <span class="number">0xFF</span> != (<span class="keyword">uint8_t</span>)buffer[<span class="number">0</span>] || 
+  <span class="number">0xD8</span> != (<span class="keyword">uint8_t</span>)buffer[<span class="number">1</span>])
+  {
+    <span class="keyword">return</span> -<span class="number">1</span>;
+  }
+  <span class="keyword">struct</span> jpeg_decompress_struct cinfo;
+  <span class="keyword">struct</span> jpeg_error_mgr jerr;
+  cinfo.err = jpeg_std_error(&amp;jerr);
+  jpeg_create_decompress(&amp;cinfo);
+  jpeg_mem_src(&amp;cinfo,(<span class="keyword">unsigned</span> <span class="keyword">char</span>*)buffer,sz);
+  jpeg_read_header(&amp;cinfo, TRUE);
+  <span class="keyword">int</span> tmp_quality = <span class="number">0</span>;
+  <span class="keyword">int</span> linear_quality = <span class="number">0</span>;
+  <span class="keyword">const</span> <span class="keyword">int</span> <span class="keyword">aver_t</span>imes = <span class="number">3</span>;
+  <span class="keyword">int</span> times = <span class="number">0</span>;
+  <span class="keyword">int</span> aver_quality = <span class="number">0</span>;
+  <span class="comment">//量化表反推3次，取平均值</span>
+  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;DCTSIZE2;i++)
+  {
+    <span class="keyword">long</span> temp = cinfo.<span class="keyword">quant_t</span>bl_ptrs[<span class="number">0</span>]-&gt;quantval[i];
+    <span class="keyword">if</span>(temp&lt;<span class="number">32767L</span>&amp;&amp;temp&gt;<span class="number">0</span>)
+    {
+      linear_quality = <span class="built_in">ceil</span>((<span class="keyword">float</span>)(temp*<span class="number">100L</span> - <span class="number">50L</span>)/<span class="keyword">std_luminance_quant_t</span>bl[i]);
+      <span class="keyword">if</span>(linear_quality==<span class="number">1</span>) tmp_quality = <span class="number">1</span>;
+      <span class="keyword">else</span> <span class="keyword">if</span>(linear_quality==<span class="number">100</span>) tmp_quality = <span class="number">100</span>;
+      <span class="keyword">else</span> <span class="keyword">if</span>(linear_quality&gt;<span class="number">100</span>)
+      {
+        tmp_quality = <span class="built_in">ceil</span>((<span class="keyword">float</span>)<span class="number">5000</span>/linear_quality);
+      }
+    <span class="keyword">else</span>
+    {
+      tmp_quality = <span class="number">100</span> - <span class="built_in">ceil</span>((<span class="keyword">float</span>)linear_quality/<span class="number">2</span>);
+    }
+    aver_quality += tmp_quality;
+    <span class="keyword">if</span>(<span class="keyword">aver_t</span>imes==++times)
+    {
+      aver_quality /= <span class="keyword">aver_t</span>imes;
+      <span class="keyword">break</span>;
+    } 
+    }
+  }
+  jpeg_destroy_decompress(&amp;cinfo);
+  <span class="keyword">return</span> aver_quality;
+}
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>** argv)</span>
+</span>{
+  <span class="built_in">printf</span>(<span class="string">"quality: %d\n"</span>,ReadJpegQuality(<span class="string">"test1.jpg"</span>));
+  <span class="keyword">return</span> <span class="number">0</span>; 
+}
+</code></pre></li>
+<li><p>编译链接的方法也很简单了<br>g++ main.cpp -I/your_path_to/libjpeg-9b/build/include -L/your_path_to/libjpeg-9b/build/lib/ -ljpeg</p>
+</li>
+</ol>
+
+    </section>
+    <footer class="post-footer">
+      <section class="author">
+    <h4>HouXin</h4>
+    <p>A designer, developer and entrepreneur. Spends his time travelling the world with a bag of kites. Likes journalism and publishing platforms.</p>
+</section>
+      <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?url=http://yoursite.com/2016/04/19/jepge_quality/"
+       onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2016/04/19/jepge_quality/"
+       onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http://yoursite.com/2016/04/19/jepge_quality/"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+    </footer>
+  </article>
+  <nav class="pagination" role="pagination">
+    
+    <span class="page-number">•</span>
+    
+    <a class="older-posts" href="/2015/06/26/as_opencv/">
+        Android Studio + Opencv 配置教程 →
+    </a>
+    
+</nav>
+  <div id="comment" class="comments-area">
+    <h1 class="title"><a href="#disqus_comments" name="disqus_comments">Comments</a></h1>
+
+    <% if(config.disqus_shortname) { %>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+    <% } %>
+</div>
+</main>
+
+
+  
+<footer class="site-footer">
+  
+  <div class="inner">
+     <section class="copyright">All content copyright <a href="/">An unique Monkey</a> &copy; 2014 &bull; All rights reserved.</section>
+     <section class="poweredby">Proudly published with <a class="icon-ghost" href="http://zespia.tw/hexo/">Hexo</a></section>
+  </div>
+</footer>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+</body>
+</html>
